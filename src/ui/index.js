@@ -6,6 +6,7 @@ export const spacing = (input = 1) => `${input * base}px`;
 export const theme = {
   primary: 'rgb(107,179,223)',
   primaryLight: 'rgb(108, 191,231)',
+
   background: 'rgb(231,236,239)',
 
   text: 'rgb(60, 60, 60)',
@@ -67,14 +68,13 @@ export const List = styled.ul`
 export const Buttons = styled.div`
   width: 100%;
   margin-left: ${({ theme }) => theme.spacing(-1)};
-  margin-top: ${({ theme }) => theme.spacing(-1)};
   display: flex;
+  align-items: flex-end;
   justify-content: flex-end;
   flex-wrap: wrap;
   margin-top: ${({ theme }) => theme.spacing()};
 
   > * {
     margin-left: ${({ theme }) => theme.spacing()};
-    margin-top: ${({ theme }) => theme.spacing()};
   }
 `;

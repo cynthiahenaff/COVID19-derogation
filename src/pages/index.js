@@ -5,7 +5,7 @@ import styled, { css } from 'styled-components';
 import Button from 'components/Button';
 import PDF from 'components/PDF';
 import { Container, media, Buttons } from 'ui';
-import { Input } from 'ui/forms';
+import { Input, RadioButton } from 'ui/forms';
 import { HotKeys } from 'react-hotkeys';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 
@@ -14,7 +14,7 @@ const Wrapper = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 100vh;
+  height: calc(100vh - 40px);
 `;
 
 const Title = styled.h1`
@@ -34,6 +34,7 @@ const Title = styled.h1`
 const Subtitle = styled.p`
   color: ${({ theme }) => theme.text};
   font-size: 1.25rem;
+  text-align: center;
 `;
 
 const Label = styled.label`
@@ -58,12 +59,14 @@ const Label = styled.label`
 const getLabelByStep = step => {
   switch (step) {
     case 1:
-      return 'Quel est votre nom ?';
+      return 'Quel est votre nom complet ?';
     case 2:
       return 'Quelle est votre date de naissance ?';
     case 3:
-      return 'Quelle est votre adresse ?';
+      return 'Quelle est votre adresse postale ?';
     case 4:
+      return 'Dans quelle ville vous situez-vous ?';
+    case 5:
       return 'Pour quelle raison souhaitez vous sortir ?';
     default:
       return '';
@@ -79,6 +82,8 @@ const getInputNameByStep = step => {
     case 3:
       return 'address';
     case 4:
+      return 'city';
+    case 5:
       return 'reason';
     default:
       return '';
@@ -91,6 +96,9 @@ const initialState = {
     name: '',
     birthday: '',
     address: '',
+    city: '',
+    reason: 0,
+    date: new Intl.DateTimeFormat('fr-FR').format(new Date()),
   },
 };
 
@@ -107,13 +115,15 @@ const reducer = (state, action) => {
     case 'VALIDATE_STEP':
       return {
         ...state,
-        step: state.step + 1,
+        step: state.step === 6 ? state.step : state.step + 1,
       };
     case 'PREVIOUS_STEP':
       return {
         ...state,
         step: state.step === 0 ? state.step : state.step - 1,
       };
+    case 'RESET':
+      return initialState;
     default:
       return state;
   }
@@ -144,7 +154,13 @@ const IndexPage = () => {
             <Wrapper>
               <Title>Attestation de déplacement dérogatoire</Title>
               <Subtitle>
-                Le générateur d'attestation de déplacement dérogatoire
+                Dans le cadre du confinement suite à l'épidémie de COVID-19, une
+                attestation de déplacement dérogatoire est obligatoire en cas de
+                sortie.
+                <br />
+                <br />
+                Il est rappelé que toute sortie ne doit être réalisée qu'en cas
+                de stricte nécessité.
               </Subtitle>
               <Button onClick={() => dispatch({ type: 'VALIDATE_STEP' })}>
                 Commencer
@@ -152,8 +168,15 @@ const IndexPage = () => {
             </Wrapper>
           )}
 
-          {step !== 0 && step !== 4 && (
-            <Wrapper style={{ alignItems: 'flex-start' }}>
+          {step > 0 && step < 5 && (
+            <Wrapper
+              style={{ alignItems: 'flex-start' }}
+              as="form"
+              onSubmit={e => {
+                e.preventDefault();
+                dispatch({ type: 'VALIDATE_STEP' });
+              }}
+            >
               <div>
                 <Label step={step}>{getLabelByStep(step)} </Label>
                 <Input
@@ -170,23 +193,119 @@ const IndexPage = () => {
                 />
               </div>
               <Buttons>
+                <Button type="submit">Suivant</Button>
+              </Buttons>
+            </Wrapper>
+          )}
+          {step === 5 && (
+            <Wrapper style={{ alignItems: 'flex-start' }}>
+              <div>
+                <Label step={step}>{getLabelByStep(step)} </Label>
+                <div>
+                  <RadioButton
+                    label="Pour partir travailler ou rentrer du travail"
+                    name="work"
+                    value={values[getInputNameByStep(step)]}
+                    id={0}
+                    onChange={e =>
+                      dispatch({
+                        type: 'UPDATE_VALUE',
+                        payload: {
+                          name: getInputNameByStep(step),
+                          value: 0,
+                        },
+                      })
+                    }
+                  />
+                  <RadioButton
+                    label="Pour faire des courses dans un magasin d'alimentation"
+                    name="courses"
+                    value={values[getInputNameByStep(step)]}
+                    id={1}
+                    onChange={e =>
+                      dispatch({
+                        type: 'UPDATE_VALUE',
+                        payload: {
+                          name: getInputNameByStep(step),
+                          value: 1,
+                        },
+                      })
+                    }
+                  />
+                  <RadioButton
+                    label="Pour aller chez le médecin ou à la pharmacie"
+                    name="health"
+                    value={values[getInputNameByStep(step)]}
+                    id={2}
+                    onChange={e =>
+                      dispatch({
+                        type: 'UPDATE_VALUE',
+                        payload: {
+                          name: getInputNameByStep(step),
+                          value: 2,
+                        },
+                      })
+                    }
+                  />
+                  <RadioButton
+                    label="Pour aller aider un de mes proches ou aller à la garde d'enfant"
+                    name="family"
+                    value={values[getInputNameByStep(step)]}
+                    id={3}
+                    onChange={e =>
+                      dispatch({
+                        type: 'UPDATE_VALUE',
+                        payload: {
+                          name: getInputNameByStep(step),
+                          value: 3,
+                        },
+                      })
+                    }
+                  />
+
+                  <RadioButton
+                    label="Pour aller courir seule ou sortir mon chien"
+                    name="run"
+                    value={values[getInputNameByStep(step)]}
+                    id={4}
+                    onChange={e =>
+                      dispatch({
+                        type: 'UPDATE_VALUE',
+                        payload: {
+                          name: getInputNameByStep(step),
+                          value: 4,
+                        },
+                      })
+                    }
+                  />
+                </div>
+              </div>
+              <Buttons>
                 <Button onClick={() => dispatch({ type: 'VALIDATE_STEP' })}>
                   Suivant
                 </Button>
               </Buttons>
             </Wrapper>
           )}
-          {step === 4 && (
+          {step === 6 && (
             <Wrapper>
               <Label>Votre document est prêt a être téléchargé</Label>
-              <Button
-                style={{ marginTop: 32 }}
-                as={PDFDownloadLink}
-                document={<PDF values={values} />}
-                fileName="attestation-de-deplacement-derogatoire.pdf"
-              >
-                Générer mon attestation
-              </Button>
+              <Buttons>
+                <Button
+                  style={{ marginTop: 32 }}
+                  as={PDFDownloadLink}
+                  document={<PDF values={values} />}
+                  fileName="attestation-de-deplacement-derogatoire.pdf"
+                >
+                  Générer mon attestation
+                </Button>
+                <Button
+                  onClick={() => dispatch({ type: 'RESET' })}
+                  variant="outline"
+                >
+                  Recommencer
+                </Button>
+              </Buttons>
             </Wrapper>
           )}
         </Container>

@@ -4,15 +4,19 @@ import 'sanitize.css/typography.css';
 import 'sanitize.css/forms.css';
 import styled, { ThemeProvider } from 'styled-components';
 import { theme } from 'ui';
+import Footer from 'components/Footer';
 
-const Main = styled.div`
+const Page = styled.div`
   height: 100vh;
   background-color: ${({ theme }) => theme.background};
 `;
 
 const Layout = ({ children }) => (
   <ThemeProvider theme={theme}>
-    <Main>{children}</Main>
+    <Page>
+      <main>{children}</main>
+      <Footer></Footer>
+    </Page>
   </ThemeProvider>
 );
 
