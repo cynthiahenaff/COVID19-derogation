@@ -1,7 +1,7 @@
 {
   "name": "covid19-derogation",
   "private": true,
-  "description": "Générer votre attestation de déplacement durant la période de confinement suite au COVID-19 en quelques secondes seulement",
+  "description": "Générez votre attestation de déplacement durant la période de confinement suite au COVID-19 en quelques secondes seulement",
   "version": "0.1.0",
   "author": "@monsieurRiz",
   "dependencies": {

@@ -5,7 +5,7 @@ require('dotenv').config({
 module.exports = {
   siteMetadata: {
     title: `Attestation de déplacement dérogatoire`,
-    description: `Générer votre attestation de déplacement durant la période de confinement suite au COVID-19 en quelques secondes seulement.`,
+    description: `Générez votre attestation de déplacement durant la période de confinement suite au COVID-19 en quelques secondes seulement.`,
     author: `@monsieurRiz`,
   },
   plugins: [
