@@ -1,5 +1,4 @@
 import React from 'react';
-import styled from 'styled-components';
 import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
 
 const styles = StyleSheet.create({
