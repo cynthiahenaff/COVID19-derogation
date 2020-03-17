@@ -133,7 +133,6 @@ const PDF = ({ values }) => {
             <Text
               style={styles.text}
             >{`Fait à ${values.city}, le ${values.date}`}</Text>
-            <Text style={styles.text}>{values.name}</Text>
           </View>
           <View
             style={{
