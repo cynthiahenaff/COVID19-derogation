@@ -76,5 +76,6 @@ export const Buttons = styled.div`
 
   > * {
     margin-left: ${({ theme }) => theme.spacing()};
+    margin-top: ${({ theme }) => theme.spacing()};
   }
 `;

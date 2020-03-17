@@ -40,20 +40,20 @@ const Subtitle = styled.p`
 const Label = styled.label`
   color: ${({ theme }) => theme.text};
   font-size: 1.5rem;
-  margin-bottom: ${({ theme }) => theme.spacing(0.5)};
+  margin-bottom: ${({ theme }) => theme.spacing()};
   position: relative;
+
   ${({ step }) =>
     step &&
     css`
-
-&:before {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  left: -60px;
-  content: '${({ step }) => step} →	';
-}
-`}
+    &:before {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      left: -60px;
+      content: '${({ step }) => step} →	';
+    }
+  `}
 `;
 
 const getLabelByStep = step => {

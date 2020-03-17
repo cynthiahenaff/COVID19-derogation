@@ -1,13 +1,14 @@
 import React from 'react';
 import styled from 'styled-components';
 import { MdRadioButtonChecked, MdRadioButtonUnchecked } from 'react-icons/md';
+import { media } from 'ui';
 
 export const Input = styled.input`
   padding: 0 0 ${({ theme }) => theme.spacing(0.5)};
   border: 0;
   transition: border-color 100ms ease;
   transition: box-shadow 0.2s ease 0s;
-  font-size: 1.875rem;
+  font-size: 1.5rem;
   width: 100%;
   outline: none;
   color: ${({ theme }) => theme.textLight};
@@ -19,6 +20,10 @@ export const Input = styled.input`
   ::placeholder {
     color: ${({ theme }) => theme.textLight};
   }
+
+  ${media.tablet`
+  font-size: 1.875rem;
+  `}
 `;
 
 const RadioLabel = styled.label`
@@ -26,13 +31,18 @@ const RadioLabel = styled.label`
   align-items: center;
   cursor: pointer;
   color: ${({ theme }) => theme.text};
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   font-weight: 300;
   margin-top: ${({ theme }) => theme.spacing(0.5)};
+
+  ${media.tablet`
+  font-size: 1.5rem;
+  `}
 
   svg {
     margin-right: ${({ theme }) => theme.spacing(0.5)};
     color: ${({ theme }) => theme.textLight};
+    min-width: 28px;
   }
 `;
 
