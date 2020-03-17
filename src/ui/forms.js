@@ -28,15 +28,19 @@ export const Input = styled.input`
 
 const RadioLabel = styled.label`
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   cursor: pointer;
   color: ${({ theme }) => theme.text};
   font-size: 1.25rem;
   font-weight: 300;
   margin-top: ${({ theme }) => theme.spacing(0.5)};
 
+  svg {
+    margin-top: 4px;
+  }
+
   ${media.tablet`
-  font-size: 1.5rem;
+    font-size: 1.5rem;
   `}
 
   svg {

@@ -9,6 +9,10 @@ const Wrapper = styled.div`
   align-items: center;
   justify-content: center;
   text-align: center;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
 `;
 
 const Footer = () => (

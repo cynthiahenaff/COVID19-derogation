@@ -175,9 +175,9 @@ const IndexPage = () => {
             <Wrapper>
               <Title>Attestation de déplacement dérogatoire</Title>
               <Subtitle>
-                Dans le cadre du confinement suite à l'épidémie de COVID-19, une
-                attestation de déplacement dérogatoire est obligatoire en cas de
-                sortie.
+                Dans le cadre du confinement faisant suite à l'épidémie de
+                COVID-19, une attestation de déplacement dérogatoire est
+                obligatoire en cas de sortie.
                 <br />
                 <br />
                 Il est rappelé que toute sortie ne doit être réalisée qu'en cas
@@ -296,7 +296,7 @@ const IndexPage = () => {
                   />
 
                   <RadioButton
-                    label="Pour aller courir seul ou sortir mon chien"
+                    label="Pour aller courir seul(e) ou sortir mon chien"
                     name="run"
                     value={values[getInputNameByStep(step)]}
                     id={4}
