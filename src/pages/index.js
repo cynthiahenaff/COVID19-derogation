@@ -201,6 +201,15 @@ const IndexPage = () => {
               <div>
                 <Label step={step}>{getLabelByStep(step)} </Label>
                 <Input
+                  onKeyDown={e => {
+                    if (e.key === 'ArrowDown') {
+                      dispatch({ type: 'VALIDATE_STEP' });
+                    }
+
+                    if (e.key === 'ArrowUp') {
+                      dispatch({ type: 'PREVIOUS_STEP' });
+                    }
+                  }}
                   ref={inputRef}
                   value={values[getInputNameByStep(step)]}
                   placeholder={getPlaceHolderByStep(step)}
@@ -287,7 +296,7 @@ const IndexPage = () => {
                   />
 
                   <RadioButton
-                    label="Pour aller courir seule ou sortir mon chien"
+                    label="Pour aller courir seul ou sortir mon chien"
                     name="run"
                     value={values[getInputNameByStep(step)]}
                     id={4}
