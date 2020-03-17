@@ -11,7 +11,7 @@ const Wrapper = styled.div`
 `;
 
 const Footer = () => (
-  <Wrapper>Ce site n'est pas un site officiel du gouvernement</Wrapper>
+  <Wrapper>Ce site n'est pas affilié au gouvernement français.</Wrapper>
 );
 
 export default Footer;

@@ -65,7 +65,7 @@ const getLabelByStep = step => {
     case 3:
       return 'Quelle est votre adresse postale ?';
     case 4:
-      return 'Dans quelle ville vous situez-vous ?';
+      return 'Dans quelle ville vous situez-vous actuellement ?';
     case 5:
       return 'Pour quelle raison souhaitez vous sortir ?';
     default:
@@ -85,6 +85,20 @@ const getInputNameByStep = step => {
       return 'city';
     case 5:
       return 'reason';
+    default:
+      return '';
+  }
+};
+const getPlaceHolderByStep = step => {
+  switch (step) {
+    case 1:
+      return 'Henri Dubois';
+    case 2:
+      return '23/05/1990';
+    case 3:
+      return '3 place Augustin Laurent 59000 Lille';
+    case 4:
+      return 'Lille';
     default:
       return '';
   }
@@ -160,7 +174,7 @@ const IndexPage = () => {
                 <br />
                 <br />
                 Il est rappelé que toute sortie ne doit être réalisée qu'en cas
-                de stricte nécessité.
+                de stricte nécessité. Nous comptons sur votre civisme.
               </Subtitle>
               <Button onClick={() => dispatch({ type: 'VALIDATE_STEP' })}>
                 Commencer
@@ -181,6 +195,7 @@ const IndexPage = () => {
                 <Label step={step}>{getLabelByStep(step)} </Label>
                 <Input
                   value={values[getInputNameByStep(step)]}
+                  placeholder={getPlaceHolderByStep(step)}
                   onChange={e =>
                     dispatch({
                       type: 'UPDATE_VALUE',
