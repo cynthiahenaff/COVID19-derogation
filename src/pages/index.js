@@ -1,4 +1,4 @@
-import React, { useReducer } from 'react';
+import React, { useReducer, useRef, useEffect } from 'react';
 import Layout from '../components/Layout';
 import SEO from '../components/Seo';
 import styled, { css } from 'styled-components';
@@ -14,7 +14,7 @@ const Wrapper = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: calc(100vh - 40px);
+  height: calc(100vh - 50px);
 `;
 
 const Title = styled.h1`
@@ -145,6 +145,7 @@ const reducer = (state, action) => {
 
 const IndexPage = () => {
   const [{ step, values }, dispatch] = useReducer(reducer, initialState);
+  const inputRef = useRef();
 
   const keyMap = {
     UP: 'up',
@@ -158,6 +159,12 @@ const IndexPage = () => {
     },
     UP: () => dispatch({ type: 'PREVIOUS_STEP' }),
   };
+
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [step]);
 
   return (
     <Layout>
@@ -194,6 +201,7 @@ const IndexPage = () => {
               <div>
                 <Label step={step}>{getLabelByStep(step)} </Label>
                 <Input
+                  ref={inputRef}
                   value={values[getInputNameByStep(step)]}
                   placeholder={getPlaceHolderByStep(step)}
                   onChange={e =>

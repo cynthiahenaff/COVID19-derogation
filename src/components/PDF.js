@@ -6,6 +6,7 @@ import {
   View,
   StyleSheet,
   Image,
+  Font,
 } from '@react-pdf/renderer';
 import checkbox from 'images/checkbox.jpg';
 import checkboxOutline from 'images/checkbox-outline.jpg';
@@ -19,35 +20,50 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   title: {
-    fontWeight: '700',
+    fontWeight: 600,
     textAlign: 'center',
     marginBottom: 16,
     fontSize: 14,
     textTransform: 'uppercase',
+    fontFamily: 'Open Sans',
   },
   subtitle: {
     fontWeight: 300,
     textAlign: 'center',
-    marginBottom: 32,
-    fontSize: 14,
-    fontWeight: 'light',
+    marginBottom: 16,
+    fontSize: 12,
+    fontFamily: 'Open Sans',
   },
   text: {
     fontSize: 14,
     marginTop: 8,
     marginBottom: 8,
-    fontWeight: 'light',
+    fontFamily: 'Open Sans',
   },
   icon: {
-    width: 14,
-    height: 14,
-    marginRight: 16,
-    marginTop: 8,
+    width: 12,
+    height: 12,
+    marginRight: 8,
+    marginTop: 12,
   },
   item: {
-    marginTop: 16,
     flexDirection: 'row',
   },
+});
+
+Font.register({
+  family: 'Open Sans',
+  fonts: [
+    {
+      src:
+        'https://cdn.jsdelivr.net/npm/open-sans-all@0.1.3/fonts/open-sans-regular.ttf',
+    },
+    {
+      src:
+        'https://cdn.jsdelivr.net/npm/open-sans-all@0.1.3/fonts/open-sans-600.ttf',
+      fontWeight: 600,
+    },
+  ],
 });
 
 const PDF = ({ values }) => {
@@ -62,8 +78,8 @@ const PDF = ({ values }) => {
         </Text>
         <Text style={styles.text}>Je soussigné(e)</Text>
         <Text style={styles.text}>Mme / M. {values.name}</Text>
-        <Text style={styles.text}>Né(e) le : {values.birthday}</Text>
-        <Text style={styles.text}>Demeurant : {values.address}</Text>
+        <Text style={styles.text}>Né(e) le {values.birthday}</Text>
+        <Text style={styles.text}>Demeurant au {values.address}</Text>
         <Text style={styles.text}>
           certifie que mon déplacement est lié au motif suivant autorisé par
           l’article 1er du décret du 16 mars 2020 portant réglementation des
