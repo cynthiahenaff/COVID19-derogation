@@ -1,3 +1,7 @@
+require('dotenv').config({
+  path: `.env.${process.env.NODE_ENV}`,
+});
+
 module.exports = {
   siteMetadata: {
     title: `Attestation de déplacement dérogatoire`,
@@ -17,6 +21,15 @@ module.exports = {
     `gatsby-plugin-sharp`,
     `gatsby-plugin-resolve-src`,
     `gatsby-plugin-styled-components`,
+    {
+      resolve: 'gatsby-plugin-matomo',
+      options: {
+        siteId: process.env.GATSBY_MATOMO_SITE_ID,
+        matomoUrl: process.env.GATSBY_MATOMO_URL,
+        siteUrl: process.env.GATSBY_MATOMO_SITE_URL,
+        requireConsent: false,
+      },
+    },
     {
       resolve: `gatsby-plugin-manifest`,
       options: {

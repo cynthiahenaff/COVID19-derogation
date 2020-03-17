@@ -116,6 +116,21 @@ const initialState = {
   },
 };
 
+const normalizeValue = ({ name, value }) => {
+  if (name === 'birthday') {
+    const formattedValue = value.replace(/[^0-9]+/g, '');
+    return (
+      formattedValue.slice(0, 2) +
+      (formattedValue.length > 1 ? '/' : '') +
+      formattedValue.slice(2, 4) +
+      (formattedValue.length > 3 ? '/' : '') +
+      formattedValue.slice(4, 8)
+    );
+  }
+
+  return value;
+};
+
 const reducer = (state, action) => {
   switch (action.type) {
     case 'UPDATE_VALUE':
@@ -123,7 +138,7 @@ const reducer = (state, action) => {
         ...state,
         values: {
           ...state.values,
-          [action.payload.name]: action.payload.value,
+          [action.payload.name]: normalizeValue(action.payload),
         },
       };
     case 'VALIDATE_STEP':
