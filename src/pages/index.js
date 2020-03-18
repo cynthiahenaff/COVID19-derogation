@@ -38,6 +38,11 @@ const Subtitle = styled.p`
   text-align: center;
 `;
 
+const SubLabel = styled.p`
+  color: ${({ theme }) => theme.text};
+  font-size: 1.25rem;
+`;
+
 const Label = styled.label`
   color: ${({ theme }) => theme.text};
   font-size: 1.5rem;
@@ -257,6 +262,10 @@ const IndexPage = () => {
                 <br />
                 Il est rappelé que toute sortie ne doit être réalisée qu'en cas
                 de stricte nécessité. Nous comptons sur votre civisme.
+                <br />
+                <br />
+                Attention, seules les versions imprimées seront acceptées par
+                les forces de l'ordre.
               </Subtitle>
               <Button onClick={() => dispatch({ type: 'VALIDATE_STEP' })}>
                 Commencer
@@ -420,6 +429,11 @@ const IndexPage = () => {
           {step === 7 && (
             <Wrapper>
               <Label>Votre document est prêt a être téléchargé</Label>
+              <SubLabel>
+                N’oubliez pas d’imprimer votre attestation, seules les
+                attestations imprimées seront acceptées par les forces de
+                l’ordre.
+              </SubLabel>
               <Buttons>
                 <Button
                   style={{ marginTop: 32 }}
