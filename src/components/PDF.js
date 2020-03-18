@@ -17,7 +17,7 @@ const styles = StyleSheet.create({
     paddingBottom: 64,
     paddingLeft: 32,
     paddingRight: 32,
-    fontSize: 14,
+    fontSize: 12,
   },
   title: {
     fontWeight: 600,
@@ -35,7 +35,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Open Sans',
   },
   text: {
-    fontSize: 14,
+    fontSize: 12,
     marginTop: 8,
     marginBottom: 8,
     fontFamily: 'Open Sans',
@@ -66,7 +66,7 @@ Font.register({
   ],
 });
 
-const PDF = ({ values }) => {
+const PDF = ({ values, signature }) => {
   return (
     <Document>
       <Page size="A4" style={styles.page}>
@@ -157,7 +157,7 @@ const PDF = ({ values }) => {
               marginTop: 16,
             }}
           >
-            <Text style={styles.text}>{values.name}</Text>
+            <Image src={signature} style={{ width: 200 }}></Image>
           </View>
         </View>
       </Page>

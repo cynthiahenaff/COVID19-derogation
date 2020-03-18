@@ -1,4 +1,4 @@
-import React, { useReducer, useRef, useEffect } from 'react';
+import React, { useState, useReducer, useRef, useEffect } from 'react';
 import Layout from '../components/Layout';
 import SEO from '../components/Seo';
 import styled, { css } from 'styled-components';
@@ -8,6 +8,7 @@ import { Container, media, Buttons } from 'ui';
 import { Input, RadioButton } from 'ui/forms';
 import { HotKeys } from 'react-hotkeys';
 import { PDFDownloadLink } from '@react-pdf/renderer';
+import RawSignatureCanvas from 'react-signature-canvas';
 
 const Wrapper = styled.div`
   display: flex;
@@ -56,6 +57,22 @@ const Label = styled.label`
   `}
 `;
 
+const Canvas = styled.div`
+  border: 1px solid rgba(0, 58, 81, 0.3);
+
+  canvas {
+    max-width: 100%;
+  }
+`;
+
+const SignatureCanvas = styled(RawSignatureCanvas)`
+  canvas {
+    width: 500px;
+    height: 200px;
+    max-width: 100%;
+  }
+`;
+
 const getLabelByStep = step => {
   switch (step) {
     case 1:
@@ -68,6 +85,8 @@ const getLabelByStep = step => {
       return 'Dans quelle ville vous situez-vous actuellement ?';
     case 5:
       return 'Pour quelle raison souhaitez vous sortir ?';
+    case 6:
+      return 'Une signature pour finir';
     default:
       return '';
   }
@@ -85,6 +104,8 @@ const getInputNameByStep = step => {
       return 'city';
     case 5:
       return 'reason';
+    case 6:
+      return 'signature';
     default:
       return '';
   }
@@ -116,14 +137,28 @@ const initialState = {
   },
 };
 
-const normalizeValue = ({ name, value }) => {
+const normalizeValue = ({ name, value, prevValue }) => {
   if (name === 'birthday') {
-    const formattedValue = value.replace(/[^0-9]+/g, '');
+    const formattedValue = value.replace(/[^0-9\/]+/g, '').replace(/\//g, '');
+    const formattedPrevValue = (prevValue || '')
+      .replace(/[^0-9\/]+/g, '')
+      .replace(/\//g, '');
+
+    const shouldAddFirstSlash =
+      formattedValue.length > 2 ||
+      (formattedValue.length > formattedPrevValue.length &&
+        formattedValue.length > 1);
+
+    const shouldAddSecondSlash =
+      formattedValue.length > 4 ||
+      (formattedValue.length > formattedPrevValue.length &&
+        formattedValue.length > 3);
+
     return (
       formattedValue.slice(0, 2) +
-      (formattedValue.length > 1 ? '/' : '') +
+      (shouldAddFirstSlash ? '/' : '') +
       formattedValue.slice(2, 4) +
-      (formattedValue.length > 3 ? '/' : '') +
+      (shouldAddSecondSlash ? '/' : '') +
       formattedValue.slice(4, 8)
     );
   }
@@ -144,7 +179,7 @@ const reducer = (state, action) => {
     case 'VALIDATE_STEP':
       return {
         ...state,
-        step: state.step === 6 ? state.step : state.step + 1,
+        step: state.step === 7 ? state.step : state.step + 1,
       };
     case 'PREVIOUS_STEP':
       return {
@@ -159,8 +194,10 @@ const reducer = (state, action) => {
 };
 
 const IndexPage = () => {
+  const [signature, setSignature] = useState();
   const [{ step, values }, dispatch] = useReducer(reducer, initialState);
   const inputRef = useRef();
+  const signatureRef = useRef();
 
   const keyMap = {
     UP: 'up',
@@ -173,6 +210,29 @@ const IndexPage = () => {
       dispatch({ type: 'VALIDATE_STEP' });
     },
     UP: () => dispatch({ type: 'PREVIOUS_STEP' }),
+  };
+
+  const handleGetSignature = () => {
+    if (!signatureRef.current) {
+      return;
+    }
+
+    setSignature(signatureRef.current.toDataURL());
+  };
+
+  const handleResetSignature = () => {
+    setSignature(null);
+
+    if (!signatureRef.current) {
+      return;
+    }
+
+    signatureRef.current.clear();
+  };
+
+  const handleReset = () => {
+    handleResetSignature();
+    dispatch({ type: 'RESET' });
   };
 
   useEffect(() => {
@@ -234,6 +294,7 @@ const IndexPage = () => {
                       payload: {
                         name: getInputNameByStep(step),
                         value: e.target.value,
+                        prevValue: values[getInputNameByStep(step)],
                       },
                     })
                   }
@@ -244,6 +305,7 @@ const IndexPage = () => {
               </Buttons>
             </Wrapper>
           )}
+
           {step === 5 && (
             <Wrapper style={{ alignItems: 'flex-start' }}>
               <div>
@@ -334,22 +396,40 @@ const IndexPage = () => {
               </Buttons>
             </Wrapper>
           )}
+
           {step === 6 && (
+            <Wrapper style={{ alignItems: 'flex-start' }}>
+              <Label step={step}>{getLabelByStep(step)}</Label>
+              <Canvas>
+                <SignatureCanvas
+                  ref={signatureRef}
+                  penColor="black"
+                  onEnd={handleGetSignature}
+                  canvasProps={{ width: 500, height: 200, maxWidth: '100%' }}
+                />
+              </Canvas>
+              <button onClick={handleResetSignature}>Effacer</button>
+              <Buttons>
+                <Button onClick={() => dispatch({ type: 'VALIDATE_STEP' })}>
+                  Suivant
+                </Button>
+              </Buttons>
+            </Wrapper>
+          )}
+
+          {step === 7 && (
             <Wrapper>
               <Label>Votre document est prêt a être téléchargé</Label>
               <Buttons>
                 <Button
                   style={{ marginTop: 32 }}
                   as={PDFDownloadLink}
-                  document={<PDF values={values} />}
+                  document={<PDF values={values} signature={signature} />}
                   fileName="attestation-de-deplacement-derogatoire.pdf"
                 >
                   Générer mon attestation
                 </Button>
-                <Button
-                  onClick={() => dispatch({ type: 'RESET' })}
-                  variant="outline"
-                >
+                <Button onClick={handleReset} variant="outline">
                   Recommencer
                 </Button>
               </Buttons>

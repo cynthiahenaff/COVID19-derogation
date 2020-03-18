@@ -24,6 +24,7 @@
     "react-helmet": "^5.2.1",
     "react-hotkeys": "^2.0.0",
     "react-icons": "^3.9.0",
+    "react-signature-canvas": "^1.0.3",
     "sanitize.css": "^11.0.0",
     "styled-components": "^5.0.1"
   },
