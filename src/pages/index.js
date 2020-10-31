@@ -115,6 +115,7 @@ const getInputNameByStep = step => {
       return '';
   }
 };
+
 const getPlaceHolderByStep = step => {
   switch (step) {
     case 1:
@@ -144,9 +145,9 @@ const initialState = {
 
 const normalizeValue = ({ name, value, prevValue }) => {
   if (name === 'birthday') {
-    const formattedValue = value.replace(/[^0-9\/]+/g, '').replace(/\//g, '');
+    const formattedValue = value.replace(/[^0-9/]+/g, '').replace(/\//g, '');
     const formattedPrevValue = (prevValue || '')
-      .replace(/[^0-9\/]+/g, '')
+      .replace(/[^0-9/]+/g, '')
       .replace(/\//g, '');
 
     const shouldAddFirstSlash =
