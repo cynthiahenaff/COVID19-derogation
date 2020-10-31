@@ -28,7 +28,7 @@ export const Wrapper = styled.button`
   }
 
   ${({ variant }) =>
-    variant === 'outline' &&
+    (variant === 'outline' || variant === 'outline-small') &&
     css`
       border: 1px solid ${({ theme }) => theme.primary};
       background-color: transparent;
@@ -39,6 +39,12 @@ export const Wrapper = styled.button`
         border: 1px solid ${({ theme }) => theme.primaryLight};
         color: ${({ theme }) => theme.primaryLight};
       }
+    `}
+
+  ${({ variant }) =>
+    variant === 'outline-small' &&
+    `
+      font-size: 14px;
     `}
 `;
 
