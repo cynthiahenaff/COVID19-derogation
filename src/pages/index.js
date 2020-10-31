@@ -282,10 +282,6 @@ const IndexPage = () => {
                 <br />
                 Il est rappelé que toute sortie ne doit être réalisée qu'en cas
                 de stricte nécessité. Nous comptons sur votre civisme.
-                <br />
-                <br />
-                Attention, seules les versions imprimées seront acceptées par
-                les forces de l'ordre.
               </Subtitle>
               <Button onClick={() => dispatch({ type: 'VALIDATE_STEP' })}>
                 Commencer
@@ -411,11 +407,6 @@ const IndexPage = () => {
 
           {step === 7 && (
             <Wrapper>
-              <SubLabel>
-                N’oubliez pas d’imprimer votre attestation, seules les
-                attestations imprimées seront acceptées par les forces de
-                l’ordre.
-              </SubLabel>
               <Label>Votre document est prêt à être téléchargé</Label>
               <Buttons alignX="center">
                 <Button
