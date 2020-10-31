@@ -84,7 +84,7 @@ const PDF = ({ values, signature, qrCode }) => {
         <Text style={styles.text}>
           certifie que mon déplacement est lié au motif suivant (cocher la case)
           autorisé par le décret n°2020-1310 du 29 octobre 2020 prescrivant les
-          mesures générales nécessaires pour faire face à l□'épidémie de Covid19
+          mesures générales nécessaires pour faire face à l’épidémie de Covid19
           dans le cadre de l'état d'urgence sanitaire :
         </Text>
         <View style={{ flexDirection: 'column', flexGrow: 1 }}>
