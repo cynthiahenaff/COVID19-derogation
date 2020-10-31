@@ -1,6 +1,6 @@
 import React, { useState, useReducer, useRef, useEffect } from 'react';
-import Layout from '../components/Layout';
-import SEO from '../components/Seo';
+import Layout from 'components/Layout';
+import SEO from 'components/Seo';
 import styled, { css } from 'styled-components';
 import Button from 'components/Button';
 import PDF from 'components/PDF';
@@ -9,6 +9,13 @@ import { Input, RadioButton } from 'ui/forms';
 import { HotKeys } from 'react-hotkeys';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import RawSignatureCanvas from 'react-signature-canvas';
+import {
+  STEPS,
+  REASONS,
+  generateQrCodeContent,
+  getQrCodeDataUrl,
+  normalizeValue,
+} from 'utils';
 
 const Wrapper = styled.div`
   display: flex;
@@ -73,37 +80,6 @@ const SignatureCanvas = styled(RawSignatureCanvas)`
   }
 `;
 
-const STEPS = {
-  1: {
-    label: 'Quel est votre nom complet ?',
-    name: 'name',
-    placeholder: 'Henri Dubois',
-  },
-  2: {
-    label: 'Quelle est votre date de naissance ?',
-    name: 'birthday',
-    placeholder: '23/05/1990',
-  },
-  3: {
-    label: 'Quelle est votre adresse postale ?',
-    name: 'address',
-    placeholder: '3 place Augustin Laurent 59000 Lille',
-  },
-  4: {
-    label: 'Dans quelle ville vous situez-vous actuellement ?',
-    name: 'city',
-    placeholder: 'Lille',
-  },
-  5: {
-    label: 'Pour quelle raison souhaitez vous sortir ?',
-    name: 'reason',
-  },
-  6: {
-    label: 'Une signature pour finir',
-    name: 'signature',
-  },
-};
-
 const initialState = {
   step: 0,
   values: {
@@ -113,36 +89,13 @@ const initialState = {
     city: '',
     reason: 0,
     date: new Intl.DateTimeFormat('fr-FR').format(new Date()),
+    time: new Date()
+      .toTimeString()
+      .split(' ')[0]
+      .split(':')
+      .slice(0, -1)
+      .join('h'),
   },
-};
-
-const normalizeValue = ({ name, value, prevValue }) => {
-  if (name === 'birthday') {
-    const formattedValue = value.replace(/[^0-9/]+/g, '').replace(/\//g, '');
-    const formattedPrevValue = (prevValue || '')
-      .replace(/[^0-9/]+/g, '')
-      .replace(/\//g, '');
-
-    const shouldAddFirstSlash =
-      formattedValue.length > 2 ||
-      (formattedValue.length > formattedPrevValue.length &&
-        formattedValue.length > 1);
-
-    const shouldAddSecondSlash =
-      formattedValue.length > 4 ||
-      (formattedValue.length > formattedPrevValue.length &&
-        formattedValue.length > 3);
-
-    return (
-      formattedValue.slice(0, 2) +
-      (shouldAddFirstSlash ? '/' : '') +
-      formattedValue.slice(2, 4) +
-      (shouldAddSecondSlash ? '/' : '') +
-      formattedValue.slice(4, 8)
-    );
-  }
-
-  return value;
 };
 
 const reducer = (state, action) => {
@@ -182,10 +135,12 @@ const reducer = (state, action) => {
 
 const IndexPage = () => {
   const [signature, setSignature] = useState();
+  const [qrCode, setQrCode] = useState();
   const [{ step, values }, dispatch] = useReducer(reducer, initialState);
   const inputRef = useRef();
   const signatureRef = useRef();
   const currentStep = STEPS[step];
+  const qrCodeContent = generateQrCodeContent(values);
 
   const keyMap = {
     UP: 'up',
@@ -266,6 +221,13 @@ const IndexPage = () => {
     }
   }, [step]);
 
+  useEffect(() => {
+    (async () => {
+      const qrCode = await getQrCodeDataUrl(qrCodeContent);
+      setQrCode(qrCode);
+    })();
+  }, [qrCodeContent]);
+
   return (
     <Layout>
       <SEO title="Attestation de déplacement dérogatoire" />
@@ -333,42 +295,15 @@ const IndexPage = () => {
               <div>
                 <Label step={step}>{currentStep?.label} </Label>
                 <div>
-                  <RadioButton
-                    label="Pour partir travailler ou rentrer du travail"
-                    name="work"
-                    value={values[currentStep?.name]}
-                    id={0}
-                    onChange={() => handleChange({ value: 0 })}
-                  />
-                  <RadioButton
-                    label="Pour faire des courses dans un magasin d'alimentation"
-                    name="courses"
-                    value={values[currentStep?.name]}
-                    id={1}
-                    onChange={() => handleChange({ value: 1 })}
-                  />
-                  <RadioButton
-                    label="Pour aller chez le médecin ou à la pharmacie"
-                    name="health"
-                    value={values[currentStep?.name]}
-                    id={2}
-                    onChange={() => handleChange({ value: 2 })}
-                  />
-                  <RadioButton
-                    label="Pour aller aider un de mes proches ou aller à la garde d'enfant"
-                    name="family"
-                    value={values[currentStep?.name]}
-                    id={3}
-                    onChange={() => handleChange({ value: 3 })}
-                  />
-
-                  <RadioButton
-                    label="Pour aller courir seul(e) ou sortir mon chien"
-                    name="run"
-                    value={values[currentStep?.name]}
-                    id={4}
-                    onChange={() => handleChange({ value: 4 })}
-                  />
+                  {REASONS.map(({ label, qrCodeValue }, index) => (
+                    <RadioButton
+                      label={label}
+                      name={qrCodeValue}
+                      value={values[currentStep?.name]}
+                      id={index}
+                      onChange={() => handleChange({ value: index })}
+                    />
+                  ))}
                 </div>
               </div>
               <Buttons>
@@ -412,7 +347,13 @@ const IndexPage = () => {
                 <Button
                   style={{ marginTop: 32 }}
                   as={PDFDownloadLink}
-                  document={<PDF values={values} signature={signature} />}
+                  document={
+                    <PDF
+                      values={values}
+                      signature={signature}
+                      qrCode={qrCode}
+                    />
+                  }
                   fileName="attestation-de-deplacement-derogatoire.pdf"
                 >
                   Générer mon attestation
