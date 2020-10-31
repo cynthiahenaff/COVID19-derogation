@@ -38,11 +38,6 @@ const Subtitle = styled.p`
   text-align: center;
 `;
 
-const SubLabel = styled.p`
-  color: ${({ theme }) => theme.text};
-  font-size: 1.25rem;
-`;
-
 const Label = styled.label`
   color: ${({ theme }) => theme.text};
   font-size: 1.5rem;
@@ -78,56 +73,35 @@ const SignatureCanvas = styled(RawSignatureCanvas)`
   }
 `;
 
-const getLabelByStep = step => {
-  switch (step) {
-    case 1:
-      return 'Quel est votre nom complet ?';
-    case 2:
-      return 'Quelle est votre date de naissance ?';
-    case 3:
-      return 'Quelle est votre adresse postale ?';
-    case 4:
-      return 'Dans quelle ville vous situez-vous actuellement ?';
-    case 5:
-      return 'Pour quelle raison souhaitez vous sortir ?';
-    case 6:
-      return 'Une signature pour finir';
-    default:
-      return '';
-  }
-};
-
-const getInputNameByStep = step => {
-  switch (step) {
-    case 1:
-      return 'name';
-    case 2:
-      return 'birthday';
-    case 3:
-      return 'address';
-    case 4:
-      return 'city';
-    case 5:
-      return 'reason';
-    case 6:
-      return 'signature';
-    default:
-      return '';
-  }
-};
-const getPlaceHolderByStep = step => {
-  switch (step) {
-    case 1:
-      return 'Henri Dubois';
-    case 2:
-      return '23/05/1990';
-    case 3:
-      return '3 place Augustin Laurent 59000 Lille';
-    case 4:
-      return 'Lille';
-    default:
-      return '';
-  }
+const STEPS = {
+  1: {
+    label: 'Quel est votre nom complet ?',
+    name: 'name',
+    placeholder: 'Henri Dubois',
+  },
+  2: {
+    label: 'Quelle est votre date de naissance ?',
+    name: 'birthday',
+    placeholder: '23/05/1990',
+  },
+  3: {
+    label: 'Quelle est votre adresse postale ?',
+    name: 'address',
+    placeholder: '3 place Augustin Laurent 59000 Lille',
+  },
+  4: {
+    label: 'Dans quelle ville vous situez-vous actuellement ?',
+    name: 'city',
+    placeholder: 'Lille',
+  },
+  5: {
+    label: 'Pour quelle raison souhaitez vous sortir ?',
+    name: 'reason',
+  },
+  6: {
+    label: 'Une signature pour finir',
+    name: 'signature',
+  },
 };
 
 const initialState = {
@@ -144,9 +118,9 @@ const initialState = {
 
 const normalizeValue = ({ name, value, prevValue }) => {
   if (name === 'birthday') {
-    const formattedValue = value.replace(/[^0-9\/]+/g, '').replace(/\//g, '');
+    const formattedValue = value.replace(/[^0-9/]+/g, '').replace(/\//g, '');
     const formattedPrevValue = (prevValue || '')
-      .replace(/[^0-9\/]+/g, '')
+      .replace(/[^0-9/]+/g, '')
       .replace(/\//g, '');
 
     const shouldAddFirstSlash =
@@ -173,12 +147,20 @@ const normalizeValue = ({ name, value, prevValue }) => {
 
 const reducer = (state, action) => {
   switch (action.type) {
+    case 'HYDRATE_INITIAL_STATE':
+      return {
+        ...state,
+        values: {
+          ...state.values,
+          ...action.payload,
+        },
+      };
     case 'UPDATE_VALUE':
       return {
         ...state,
         values: {
           ...state.values,
-          [action.payload.name]: normalizeValue(action.payload),
+          [action.payload.name]: action.payload?.value,
         },
       };
     case 'VALIDATE_STEP':
@@ -203,6 +185,7 @@ const IndexPage = () => {
   const [{ step, values }, dispatch] = useReducer(reducer, initialState);
   const inputRef = useRef();
   const signatureRef = useRef();
+  const currentStep = STEPS[step];
 
   const keyMap = {
     UP: 'up',
@@ -239,6 +222,43 @@ const IndexPage = () => {
     handleResetSignature();
     dispatch({ type: 'RESET' });
   };
+
+  const handleChange = ({ value, prevValue, shouldPersist }) => {
+    const name = currentStep?.name;
+    const payload = {
+      name,
+      value: normalizeValue({ name, value, prevValue }),
+    };
+
+    if (shouldPersist) {
+      try {
+        const persistedState = {
+          ...(JSON.parse(localStorage.getItem('state')) || {}),
+          [payload?.name]: value,
+        };
+        localStorage.setItem('state', JSON.stringify(persistedState));
+      } catch (err) {
+        localStorage.clear();
+      }
+    }
+
+    dispatch({
+      type: 'UPDATE_VALUE',
+      payload,
+    });
+  };
+
+  useEffect(() => {
+    try {
+      const payload = JSON.parse(localStorage.getItem('state'));
+      dispatch({
+        type: 'HYDRATE_INITIAL_STATE',
+        payload,
+      });
+    } catch (err) {
+      localStorage.clear();
+    }
+  }, []);
 
   useEffect(() => {
     if (inputRef.current) {
@@ -283,7 +303,7 @@ const IndexPage = () => {
               }}
             >
               <div>
-                <Label step={step}>{getLabelByStep(step)} </Label>
+                <Label step={step}>{currentStep?.label} </Label>
                 <Input
                   onKeyDown={e => {
                     if (e.key === 'ArrowDown') {
@@ -295,16 +315,13 @@ const IndexPage = () => {
                     }
                   }}
                   ref={inputRef}
-                  value={values[getInputNameByStep(step)]}
-                  placeholder={getPlaceHolderByStep(step)}
+                  value={values[currentStep?.name]}
+                  placeholder={currentStep?.placeholder}
                   onChange={e =>
-                    dispatch({
-                      type: 'UPDATE_VALUE',
-                      payload: {
-                        name: getInputNameByStep(step),
-                        value: e.target.value,
-                        prevValue: values[getInputNameByStep(step)],
-                      },
+                    handleChange({
+                      value: e.target.value,
+                      prevValue: values[currentStep?.name],
+                      shouldPersist: true,
                     })
                   }
                 />
@@ -318,83 +335,43 @@ const IndexPage = () => {
           {step === 5 && (
             <Wrapper style={{ alignItems: 'flex-start' }}>
               <div>
-                <Label step={step}>{getLabelByStep(step)} </Label>
+                <Label step={step}>{currentStep?.label} </Label>
                 <div>
                   <RadioButton
                     label="Pour partir travailler ou rentrer du travail"
                     name="work"
-                    value={values[getInputNameByStep(step)]}
+                    value={values[currentStep?.name]}
                     id={0}
-                    onChange={e =>
-                      dispatch({
-                        type: 'UPDATE_VALUE',
-                        payload: {
-                          name: getInputNameByStep(step),
-                          value: 0,
-                        },
-                      })
-                    }
+                    onChange={() => handleChange({ value: 0 })}
                   />
                   <RadioButton
                     label="Pour faire des courses dans un magasin d'alimentation"
                     name="courses"
-                    value={values[getInputNameByStep(step)]}
+                    value={values[currentStep?.name]}
                     id={1}
-                    onChange={e =>
-                      dispatch({
-                        type: 'UPDATE_VALUE',
-                        payload: {
-                          name: getInputNameByStep(step),
-                          value: 1,
-                        },
-                      })
-                    }
+                    onChange={() => handleChange({ value: 1 })}
                   />
                   <RadioButton
                     label="Pour aller chez le médecin ou à la pharmacie"
                     name="health"
-                    value={values[getInputNameByStep(step)]}
+                    value={values[currentStep?.name]}
                     id={2}
-                    onChange={e =>
-                      dispatch({
-                        type: 'UPDATE_VALUE',
-                        payload: {
-                          name: getInputNameByStep(step),
-                          value: 2,
-                        },
-                      })
-                    }
+                    onChange={() => handleChange({ value: 2 })}
                   />
                   <RadioButton
                     label="Pour aller aider un de mes proches ou aller à la garde d'enfant"
                     name="family"
-                    value={values[getInputNameByStep(step)]}
+                    value={values[currentStep?.name]}
                     id={3}
-                    onChange={e =>
-                      dispatch({
-                        type: 'UPDATE_VALUE',
-                        payload: {
-                          name: getInputNameByStep(step),
-                          value: 3,
-                        },
-                      })
-                    }
+                    onChange={() => handleChange({ value: 3 })}
                   />
 
                   <RadioButton
                     label="Pour aller courir seul(e) ou sortir mon chien"
                     name="run"
-                    value={values[getInputNameByStep(step)]}
+                    value={values[currentStep?.name]}
                     id={4}
-                    onChange={e =>
-                      dispatch({
-                        type: 'UPDATE_VALUE',
-                        payload: {
-                          name: getInputNameByStep(step),
-                          value: 4,
-                        },
-                      })
-                    }
+                    onChange={() => handleChange({ value: 4 })}
                   />
                 </div>
               </div>
@@ -408,16 +385,22 @@ const IndexPage = () => {
 
           {step === 6 && (
             <Wrapper style={{ alignItems: 'flex-start' }}>
-              <Label step={step}>{getLabelByStep(step)}</Label>
+              <Label step={step}>{currentStep?.label}</Label>
               <Canvas>
                 <SignatureCanvas
                   ref={signatureRef}
                   penColor="black"
                   onEnd={handleGetSignature}
-                  canvasProps={{ width: 500, height: 200, maxWidth: '100%' }}
+                  canvasProps={{ width: 500, height: 200 }}
                 />
               </Canvas>
-              <button onClick={handleResetSignature}>Effacer</button>
+              <Button
+                onClick={handleResetSignature}
+                variant="outline-small"
+                style={{ marginTop: 8 }}
+              >
+                Effacer
+              </Button>
               <Buttons>
                 <Button onClick={() => dispatch({ type: 'VALIDATE_STEP' })}>
                   Suivant
@@ -428,13 +411,13 @@ const IndexPage = () => {
 
           {step === 7 && (
             <Wrapper>
-              <Label>Votre document est prêt a être téléchargé</Label>
               <SubLabel>
                 N’oubliez pas d’imprimer votre attestation, seules les
                 attestations imprimées seront acceptées par les forces de
                 l’ordre.
               </SubLabel>
-              <Buttons>
+              <Label>Votre document est prêt à être téléchargé</Label>
+              <Buttons alignX="center">
                 <Button
                   style={{ marginTop: 32 }}
                   as={PDFDownloadLink}
